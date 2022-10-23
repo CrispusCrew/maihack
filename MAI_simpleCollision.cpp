@@ -24,6 +24,7 @@
 #include <cstring>
 #include <climits>
 #include <stdexcept>
+#include <charconv>
 
 const int t32 = INT_MAX-1;
 const long long t64= LLONG_MAX-1;
@@ -34,8 +35,19 @@ using ld = long double;
 
 long double sqr(long double x) {return x * x;}
 
-struct Triangle {
+/*struct Triangle {
     std::vector <std::pair <ld, ld>> points;// [3];
+};*/
+
+class Triangle {
+public:
+    std::vector <std::pair <ld, ld>> points;// [3];
+    Triangle(ld f1, ld f2, ld f3, ld f4, ld f5, ld f6) {
+        points.push_back(std::make_pair(f1, f2));
+        points.push_back(std::make_pair(f3, f4));
+        points.push_back(std::make_pair(f5, f6));
+        points.push_back(std::make_pair(f1, f2));
+    }
 };
 
 bool pointInsideTriangle(std::pair <ld, ld> point, Triangle triangle) {
@@ -80,7 +92,20 @@ bool vectorsIntercept(std::pair <ld, ld> P1, std::pair <ld, ld> P2, // P1P2 и P
     return false;
 }
 
+void demTriangle(Triangle triangle) {
+    std::cout <<
+    triangle.points[0].first << " " << triangle.points[0].second << std::endl <<
+    triangle.points[0].first << " " << triangle.points[0].second << std::endl << 
+    triangle.points[0].first << " " << triangle.points[0].second << std::endl << std::endl;
+}
+
 bool triangleIntercept(Triangle triangle, Triangle triangle2)  {
+
+    std::cout << "triangle one is" << std::endl;
+    demTriangle(triangle);
+
+    std::cout << "triangle two is" << std::endl;
+    demTriangle(triangle2);
 
     if(triangleInsideTriangle(triangle, triangle2)) return true;
 
@@ -92,11 +117,51 @@ bool triangleIntercept(Triangle triangle, Triangle triangle2)  {
     return false;
 }
 
-bool collisionTest(std::vector <Triangle> test) {
+bool collisionTest(std::vector <Triangle> first, std::vector <Triangle> second) {
     
+    for(int i = 0; i < first.size(); i++)
+        for(int j = 0; j < second.size(); j++)
+            if(triangleIntercept(first[i], second[j])) return true;
+
+return false;
+}
+
+void demSolve() {
+    std::ifstream fin ("input.txt");
+
+    std::vector <Triangle> plane;
+    std::vector <Triangle> port;
+    ld buf, buf2; 
+    ld f1, f2, f3, f4, f5, f6;
+
+    const int PlaneParts = 4; // сколько треугольников на описание самолета
+    const int PortParts = 3;
+
+    for(int i = 0; i < PlaneParts; i++) {
+        fin >> f1 >> f2 >> f3 >> f4 >> f5 >> f6;
+        plane.push_back(Triangle(f1,f2,f3,f4,f5,f6));
+    }
+
+    for(int i = 0; i < PortParts; i++) {
+        fin >> f1 >> f2 >> f3 >> f4 >> f5 >> f6;
+        port.push_back(Triangle(f1,f2,f3,f4,f5,f6));
+    }   
+
+    for(int i = 0; i < PlaneParts; i++) {
+        for (int j = 0; j < PortParts; j++) {
+            if (triangleIntercept(plane[i], port[j])) {
+                std::cout << "INTERCEPT DANGER" << std::endl;
+                std::cout << "Plane part #" << i + 1 << std::endl;
+                std::cout << "Port part #" << j + 1 << std::endl;
+                fin.close(); return;
+            }
+        }
+    }
+    fin.close();
 }
 
 int main() {
+    demSolve();
     //std::vector <Triangle> test;
 
     //collisionTest(test);
@@ -125,7 +190,7 @@ int main() {
     if (vectorsIntercept(std::make_pair(1,1), std::make_pair(5,2),
     std::make_pair(1,4), std::make_pair(3,4))) std::cout << "YEEES";
     else std::cout << "NOOOO";
-    
+
     
     
     Triangle tst;
