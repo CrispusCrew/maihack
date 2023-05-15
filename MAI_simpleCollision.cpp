@@ -127,7 +127,7 @@ return false;
 }
 
 void demSolve() {
-    std::ifstream fin ("input.txt");
+    std::ifstream fin ("input2.txt");
 
     std::vector <Triangle> plane;
     std::vector <Triangle> port;
